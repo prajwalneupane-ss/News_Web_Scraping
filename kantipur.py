@@ -12,9 +12,9 @@ def translate_nepali_to_english(text):
         return translated_text
     except Exception as e:
         print(f"Translation error: {e}")
-        return None
+        return 'Not Available at the moment'
 #No. of news required
-no_of_news = 2
+no_of_news = 5
 
 # Function to scrape the main page of ekantipur.com and find headlines with URLs
 def scrape_main_page(url):
@@ -220,7 +220,23 @@ def main_pipeline():
 # Run the main pipeline
 nepali_df, english_df = main_pipeline()
 
+dtype_dict = {
+    'Source': sqlalchemy.types.NVARCHAR(length='max'),
+    'Headline': sqlalchemy.types.NVARCHAR(length='max'),
+    'Title': sqlalchemy.types.NVARCHAR(length='max'),
+    'Category': sqlalchemy.types.NVARCHAR(length='max'),
+    'URL': sqlalchemy.types.NVARCHAR(length='max'),
+    'Article': sqlalchemy.types.NVARCHAR(length='max'),
+    'Author': sqlalchemy.types.NVARCHAR(length='max'),
+    'District': sqlalchemy.types.NVARCHAR(length='max'),
+    'Published_Date': sqlalchemy.types.DateTime  # Specify DateTime for Published_Date
+}
+connection_string = 'mssql+pyodbc://PRAJWAL/etltestdata?trusted_connection=yes&driver=ODBC+Driver+17+For+SQL+Server'
+
+engine = sqlalchemy.create_engine(connection_string)
+nepali_df.to_sql('kantipur_np', con=engine, if_exists='replace', index=False, dtype=dtype_dict)
+english_df.to_sql('kantipur_en', con=engine, if_exists='replace', index=False, dtype=dtype_dict)
+print('Done')
 print(nepali_df)
-
-
+print(english_df)
 
